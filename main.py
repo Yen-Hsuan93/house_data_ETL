@@ -11,31 +11,46 @@ from etl_02_transform.elevator_processing import ElevatorProcessing
 from etl_02_transform.lat_lng_processing import LatLngUpdate
 from etl_02_transform.MRT_distance import MrtDistance
 from etl_03_load.save_handler import MainDataLoader
-
-
+import os
+import shutil
 
 def main():
-    # Step 1: 下載最新資料
+
+   
+    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+    PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
+
+    MASTER_DATA_PATH = os.path.join(PROJECT_ROOT, "cleaning_house_rawdata", "cleaning_main_data.csv")
+    TEMP_OUTPUT_PATH = os.path.join(PROJECT_ROOT, "cleaning_house_rawdata", "main_data_updated.csv")
+    
+    RAW_FOLDER = os.path.join(PROJECT_ROOT, "house_rawdata")
+    MERGED_RAW_PATH = os.path.join(PROJECT_ROOT, "main_house_rawdata", "merged_rawdata.csv")
+    MERGED_CLEANED_PATH = os.path.join(PROJECT_ROOT, "main_house_rawdata", "merged_cleaned.csv")
+    MRT_LOCATION_PATH = os.path.join(PROJECT_ROOT, "mrt_location.csv")
+
+
+
+    # 下載最新資料
     rawdata_download = HouseDownload()
     rawdata_download.visit()
     rawdata_download.search()
     rawdata_download.save_csv()
 
-    # Step 2: 合併 rawdata 至 merged_rawdata.csv
+    # 合併 rawdata
     raw_merger = RawMerger(
-        raw_folder=r"C:\sideProject\house_rawdata",
-        merged_path=r"C:\sideProject\main_house_rawdata\merged_rawdata.csv"
+        raw_folder=RAW_FOLDER,
+        merged_path=MERGED_RAW_PATH
     )
     merged_path = raw_merger.merge()
 
-    # Step 3: ETL 清整 merged_rawdata.csv
+    # ETL 清整
     io = IOHandler(
         input_path=merged_path,
-        output_path=r"C:\sideProject\main_house_rawdata\merged_cleaned.csv"
+        output_path=MERGED_CLEANED_PATH
     )
     df = io.load()
 
-
+    # --- 資料清洗 ---
     filter_basic = FilterBasic(df)
     filter_basic = filter_basic.drop_duplicates_by_id()
     filter_basic = filter_basic.unify_columns()
@@ -63,7 +78,6 @@ def main():
     material_process = material_process.impute_main_material()
     df = material_process.df
 
-
     floor_Process = FloorProcessing(df)
     floor_Process = floor_Process.total_floor()
     floor_Process = floor_Process.count_transfer_floors()
@@ -79,30 +93,51 @@ def main():
     elevator_process = elevator_process.infer_elevator()
     df = elevator_process.df
 
-    main_data_path=r"C:\sideProject\cleaning_house_rawdata\main_data.csv"
-    lat_lng_update = LatLngUpdate(df,main_data_path)
+    lat_lng_update = LatLngUpdate(df, main_data_path=MASTER_DATA_PATH)
     lat_lng_update = lat_lng_update.visit()
     lat_lng_update = lat_lng_update.update_lat_lng()
     lat_lng_update = lat_lng_update.quit()
     df = lat_lng_update.df
 
-    mrtDistance = MrtDistance(df, mrt_path=r"C:\sideProject\mrt_location.csv")
+    mrtDistance = MrtDistance(df, mrt_path=MRT_LOCATION_PATH)
     mrtDistance = mrtDistance.calculate_distance_to_mrt()
     df = mrtDistance.df
 
     io.save(df)
     print(" ETL 清整完成，整併資料中")
 
-    # Step 4: 將清整後資料合併入 main_data.csv
+    # Step 4: 清整後資料合併
     loader = MainDataLoader(
-        main_data_path=r"C:\sideProject\cleaning_house_rawdata\cleaning_main_data.csv",
-        new_data_path=r"C:\sideProject\main_house_rawdata\merged_cleaned.csv",
-        output_path=r"C:\sideProject\cleaning_house_rawdata\main_data_updated.csv"
+        main_data_path=MASTER_DATA_PATH,
+        new_data_path=MERGED_CLEANED_PATH,
+        output_path=TEMP_OUTPUT_PATH      
     )
     loader.load()
 
-    print("ETL完成")
+    # Step 5: 備份與更新
+    print("備份中...")
 
+    if os.path.exists(TEMP_OUTPUT_PATH):
+        
+        if os.path.exists(MASTER_DATA_PATH):
+            try:
+                shutil.copy(MASTER_DATA_PATH, MASTER_DATA_PATH + ".bak")
+            except Exception as e:
+                print(f"備份失敗 (不影響更新): {e}")
+
+        try:
+            if os.path.exists(MASTER_DATA_PATH):
+                os.remove(MASTER_DATA_PATH)
+            
+            os.rename(TEMP_OUTPUT_PATH, MASTER_DATA_PATH)
+            print("備份及更新完成！")
+        except Exception as e:
+            print(f"更新失敗: {e}")
+    
+    else:
+        print("錯誤：找不到更新檔")
+
+    print("ETL完成")
 
 if __name__ == "__main__":
     main()

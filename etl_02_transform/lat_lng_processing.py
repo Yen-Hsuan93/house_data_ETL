@@ -1,3 +1,4 @@
+import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -7,8 +8,7 @@ import numpy as np
 from pathlib import Path
 
 class LatLngUpdate:
-    
-    def __init__(self, df: pd.DataFrame, main_data_path=None, test_mode=True):
+    def __init__(self, df: pd.DataFrame, main_data_path=None, test_mode=False):
         
         #test_mode=True 僅爬前 50 筆
         #test_mode=False 正常模式
@@ -25,7 +25,7 @@ class LatLngUpdate:
             self.main_data = pd.DataFrame()
             print("[LatLngUpdate] 未提供 main_data.csv 或檔案不存在，略過比對")
 
-        # 標準化地址（台→臺）
+        # 標準化地址
         for df_ in [self.df, self.main_data]:
             if "土地位置建物門牌" in df_.columns:
                 df_["土地位置建物門牌"] = (
@@ -88,7 +88,7 @@ class LatLngUpdate:
             self.df["緯度"] = self.df["緯度"].fillna(self.df["土地位置建物門牌"].map(lat_map))
             self.df["經度"] = self.df["經度"].fillna(self.df["土地位置建物門牌"].map(lng_map))
             after = self.df["緯度"].notna().sum()
-            print(f" 從 main_data.csv 向量化比對補上 {after - before:,} 筆經緯度")
+            print(f"向量化比對補上 {after - before:,} 筆經緯度")
 
         # Step 2：Google Maps 轉經緯度
         still_missing = self.df[self.df["緯度"].isna() | self.df["經度"].isna()]
@@ -111,7 +111,7 @@ class LatLngUpdate:
                 continue
             try:
                 txtInput = self.driver.find_element(
-                    By.CSS_SELECTOR, "#omnibox-container input.fontBodyMedium.searchboxinput.xiQnY"
+                    By.CSS_SELECTOR, "input.fontBodyMedium.searchboxinput.xiQnY"
                 )
                 txtInput.clear()
                 sleep(0.4)
@@ -149,10 +149,12 @@ class LatLngUpdate:
 
 
 def main():
-    input_path = r"C:\sideProject\main_house_rawdata\merged_rawdata.csv"
+    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+    PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
+    input_path = os.path.join(PROJECT_ROOT, "main_house_rawdata", "merged_rawdata.csv")
     df = pd.read_csv(input_path, encoding="utf-8-sig")
 
-    lat_lng_update = LatLngUpdate(df,main_data_path=r"C:\sideProject\cleaning_house_rawdata\main_data.csv")
+    lat_lng_update = LatLngUpdate(df,main_data_path=r"C:\sideProject\cleaning_house_rawdata\cleaning_main_data.csv")
     lat_lng_update = lat_lng_update.visit()
     lat_lng_update = lat_lng_update.update_lat_lng()
     lat_lng_update = lat_lng_update.quit()

@@ -29,3 +29,6 @@ chromedriver.exe
 # OS
 .DS_Store
 Thumbs.db
+
+# Backups
+*.bak

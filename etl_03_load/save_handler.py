@@ -9,8 +9,8 @@ class MainDataLoader:
         self.output_path = Path(output_path)
 
     def load(self):
+        
         #合併清整後資料回主檔
-
         old_main = pd.read_csv(self.main_data_path, encoding="utf-8-sig")
         new_cleaned = pd.read_csv(self.new_data_path, encoding="utf-8-sig")
 

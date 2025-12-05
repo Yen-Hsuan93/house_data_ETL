@@ -1,5 +1,6 @@
 import pandas as pd
 from typing import Optional
+import os
 
 class IOHandler:
     def __init__(self, 
@@ -28,11 +29,19 @@ class IOHandler:
         df.to_csv(self.output_path,encoding = self.encoding, index = False, sep = ",")
         print(f"已utf-8儲存到{self.output_path}")
     
+
+
 def main():
+    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+    PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
+    input_csv_path = os.path.join(PROJECT_ROOT, "main_house_rawdata", "merged_rawdata.csv")
+    output_csv_path = os.path.join(PROJECT_ROOT, "main_house_rawdata", "merged_cleaned.csv")
+
     io = IOHandler(
-        input_path=r"C:\sideProject\main_house_rawdata\merged_rawdata.csv",
-        output_path=r"C:\sideProject\main_house_rawdata\merged_cleaned.csv"
+        input_path=input_csv_path,   
+        output_path=output_csv_path  
     )
+    
     df = io.load()
     io.save(df)
 

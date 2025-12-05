@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 
@@ -22,7 +23,9 @@ class MaterialProcessing:
 
 def main():
 
-    input_path = r"C:\sideProject\main_house_rawdata\merged_rawdata.csv"
+    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+    PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
+    input_path = os.path.join(PROJECT_ROOT, "main_house_rawdata", "merged_rawdata.csv")
     df = pd.read_csv(input_path, encoding="utf-8-sig")
 
     material_process = MaterialProcessing(df)
