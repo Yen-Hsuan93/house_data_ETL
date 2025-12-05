@@ -3,12 +3,6 @@ import pandas as pd
 from pathlib import Path
 
 class RawMerger:
-    """
-    合併下載的原始實價登錄 CSV（增量更新版）
-    - 只併入尚未存在於 merged_rawdata.csv 的新檔案
-    - 自動移除英文標題列
-    - 新檔案會附上來源檔名
-    """
 
     def __init__(
         self,
