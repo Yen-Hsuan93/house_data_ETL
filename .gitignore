@@ -22,6 +22,7 @@ cleaning_house_rawdata/
 downloads/
 *.csv
 *.zip
+*.bat
 
 # ChromeDriver
 chromedriver.exe

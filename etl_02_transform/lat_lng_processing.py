@@ -37,7 +37,6 @@ class LatLngUpdate:
             if col in self.df.columns:
                 self.df[col].replace("", np.nan, inplace=True)
 
-        # 建立瀏覽器
         my_options = webdriver.ChromeOptions()
         my_options.add_argument("--start-maximized")
         my_options.add_argument("--incognito")
@@ -90,7 +89,7 @@ class LatLngUpdate:
             after = self.df["緯度"].notna().sum()
             print(f"向量化比對補上 {after - before:,} 筆經緯度")
 
-        # Step 2：Google Maps 轉經緯度
+        # Google Maps 轉經緯度
         still_missing = self.df[self.df["緯度"].isna() | self.df["經度"].isna()]
         print(f" 仍有 {len(still_missing)} 筆缺少經緯度")
 
@@ -114,11 +113,11 @@ class LatLngUpdate:
                     By.CSS_SELECTOR, "input.fontBodyMedium.searchboxinput.xiQnY"
                 )
                 txtInput.clear()
-                sleep(0.4)
+                sleep(2)
                 txtInput.send_keys(addr)
-                sleep(0.4)
+                sleep(2)
                 txtInput.send_keys(Keys.ENTER)
-                sleep(2.5)
+                sleep(3)
 
                 url = self.driver.current_url
                 lat, lng = self._extract_coordinates_from_url(url)
@@ -130,7 +129,7 @@ class LatLngUpdate:
             except Exception as e:
                 print(f" 搜尋失敗：{addr}，錯誤：{e}")
 
-        # Step 3：清理未爬資料
+        # 清理未爬資料
         if self.test_mode:
             print("刪除未爬取經緯度的其他資料")
             self.df = self.df.loc[still_missing.index].reset_index(drop=True)
@@ -149,12 +148,13 @@ class LatLngUpdate:
 
 
 def main():
+    MASTER_DATA_PATH = os.path.join(PROJECT_ROOT, "cleaning_house_rawdata", "cleaning_main_data.csv")
     CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
     PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
     input_path = os.path.join(PROJECT_ROOT, "main_house_rawdata", "merged_rawdata.csv")
     df = pd.read_csv(input_path, encoding="utf-8-sig")
 
-    lat_lng_update = LatLngUpdate(df,main_data_path=r"C:\sideProject\cleaning_house_rawdata\cleaning_main_data.csv")
+    lat_lng_update = LatLngUpdate(df,main_data_path=MASTER_DATA_PATH)
     lat_lng_update = lat_lng_update.visit()
     lat_lng_update = lat_lng_update.update_lat_lng()
     lat_lng_update = lat_lng_update.quit()
@@ -169,4 +169,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
