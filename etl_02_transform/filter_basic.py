@@ -18,13 +18,12 @@ class FilterBasic:
     def unify_columns(self):
 
         # 轉換為數值
-        num_cols = ["建物移轉總面積平方公尺", "車位移轉總面積平方公尺"]
+        num_cols = ["建物移轉總面積平方公尺", "車位移轉總面積(平方公尺)"]
         for col in num_cols:
-            # 使用 .loc 明確指派
             self.df.loc[:, col] = pd.to_numeric(self.df[col], errors="coerce")
 
         # 例：合併相似欄位
-        col1, col2 = "非都市土地使用分區", "非都市土地使用編定"
+        col1, col2 = "車位移轉總面積平方公尺", "車位移轉總面積(平方公尺)"
         if col1 in self.df.columns and col2 in self.df.columns:
             self.df.loc[:, col1] = self.df[col1].combine_first(self.df[col2])
 
@@ -57,6 +56,10 @@ class FilterBasic:
         if "備註" in self.df.columns:
             pattern = "|".join(map(str, keywords))
             self.df = self.df[~self.df["備註"].astype(str).str.contains(pattern, na=False)]
+        return self
+    def cleaning_house_type(self,target_types =('住宅大樓', '華廈', '公寓', '透天厝','套房') ):
+        self.df['建物型態'] = self.df['建物型態'].astype(str).str.split('(').str[0]
+        self.df = self.df[self.df['建物型態'].isin(target_types)].copy()
         return self
 
     def add_city_from_source(self):

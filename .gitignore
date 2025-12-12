@@ -21,6 +21,7 @@ main_house_rawdata/
 cleaning_house_rawdata/
 downloads/
 *.csv
+!mrt_location.csv
 *.zip
 *.bat
 

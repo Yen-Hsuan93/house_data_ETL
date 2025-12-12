@@ -21,12 +21,12 @@ def main():
     PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
 
     MASTER_DATA_PATH = os.path.join(PROJECT_ROOT, "cleaning_house_rawdata", "cleaning_main_data.csv")
-    TEMP_OUTPUT_PATH = os.path.join(PROJECT_ROOT, "cleaning_house_rawdata", "main_data_updated.csv")
+    TEMP_OUTPUT_PATH = os.path.join(PROJECT_ROOT, "cleaning_house_rawdata", "main_data_updated2.csv")
     
     RAW_FOLDER = os.path.join(PROJECT_ROOT, "house_rawdata")
     MERGED_RAW_PATH = os.path.join(PROJECT_ROOT, "main_house_rawdata", "merged_rawdata.csv")
     MERGED_CLEANED_PATH = os.path.join(PROJECT_ROOT, "main_house_rawdata", "merged_cleaned.csv")
-    MRT_LOCATION_PATH = os.path.join(PROJECT_ROOT, "mrt_location.csv")
+    MRT_LOCATION_PATH = os.path.join(CURRENT_DIR, "mrt_location.csv")
 
 
 
@@ -59,6 +59,7 @@ def main():
     filter_basic = filter_basic.keep_urban_zone_residential()
     filter_basic = filter_basic.filter_out_non_urban_zones()
     filter_basic = filter_basic.remove_notes_with_keywords()
+    filter_basic = filter_basic.cleaning_house_type()
     filter_basic = filter_basic.add_city_from_source()
     df = filter_basic.df
 
@@ -101,6 +102,7 @@ def main():
 
     mrtDistance = MrtDistance(df, mrt_path=MRT_LOCATION_PATH)
     mrtDistance = mrtDistance.calculate_distance_to_mrt()
+    mrtDistance = mrtDistance.process_mrt_name_and_grade()
     df = mrtDistance.df
 
     io.save(df)

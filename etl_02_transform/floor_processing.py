@@ -78,7 +78,7 @@ class FloorProcessing:
         if '移轉層次' in self.df.columns:
             self.df['最高交易樓層'] = self.df['移轉層次'].apply(_highest)
             self.df = self.df[(self.df['最高交易樓層'].isna()) | (self.df['最高交易樓層'] >= 0)]
-            self.df['最高交易樓層'] = self.df['最高交易樓層'].astype('Int64')
+            self.df.loc[:, '最高交易樓層'] = self.df['最高交易樓層'].astype('Int64')
         return self
 
 

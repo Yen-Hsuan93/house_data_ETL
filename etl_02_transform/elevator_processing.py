@@ -21,7 +21,7 @@ class ElevatorProcessing:
         if "建物型態" in self.df.columns:
             t = self.df["建物型態"].astype(str)
             no_elev = (
-                t.str.contains(r"公寓\(5樓含以下無電梯\)", na=False)
+                t.str.contains(r"公寓", na=False)
                 | t.str.contains("透天厝", na=False)
             )
             self.df.loc[mask & no_elev, "電梯"] = 0
