@@ -20,8 +20,8 @@ def main():
     CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
     PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
 
-    MASTER_DATA_PATH = os.path.join(PROJECT_ROOT, "cleaning_house_rawdata", "cleaning_main_data.csv")
-    TEMP_OUTPUT_PATH = os.path.join(PROJECT_ROOT, "cleaning_house_rawdata", "main_data_updated2.csv")
+    MASTER_DATA_PATH = os.path.join(PROJECT_ROOT, "cleaning_house_rawdata", "cleaning_main_data2.csv")
+    TEMP_OUTPUT_PATH = os.path.join(PROJECT_ROOT, "cleaning_house_rawdata", "main_data_updated.csv")
     
     RAW_FOLDER = os.path.join(PROJECT_ROOT, "house_rawdata")
     MERGED_RAW_PATH = os.path.join(PROJECT_ROOT, "main_house_rawdata", "merged_rawdata.csv")
