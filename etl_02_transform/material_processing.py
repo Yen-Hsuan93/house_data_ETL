@@ -7,7 +7,7 @@ class MaterialProcessing:
     def __init__(self, df: pd.DataFrame):
         self.df = df.copy()
 
-    def impute_main_material(self):  #依建物型態補主要建材
+    def impute_main_material(self):
         if '主要建材' not in self.df.columns or '建物型態' not in self.df.columns:
             print(" 缺少欄位，跳過 impute_main_material")
             return self

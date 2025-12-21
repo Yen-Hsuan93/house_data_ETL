@@ -4,12 +4,11 @@ import numpy as np
 import pandas as pd
 
 class FloorProcessing:
-    """樓層：總樓層、移轉樓層統計、最高交易樓層"""
 
     def __init__(self, df: pd.DataFrame):
         self.df = df
 
-    def total_floor(self): #總樓層數:中文/數字轉整數, 0 視為缺失
+    def total_floor(self): 
         cn = {'零':0,'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9}
         def _convert(value):
             try:
@@ -39,7 +38,7 @@ class FloorProcessing:
 
     def count_transfer_floors(self):
         
-        def _count(text): # 從 移轉層次 字串統計含地下在內的樓層數量
+        def _count(text): 
             if pd.isnull(text): return pd.NA
             t = str(text)
             if '全' in t: return 0
@@ -54,7 +53,7 @@ class FloorProcessing:
 
     def extract_highest_floor(self):
         
-        def cn2int(s: str) -> int: #從 移轉層次 擷取最高交易樓層；地下樓視為負數，僅保留 >=0 或 NA值
+        def cn2int(s: str) -> int: 
             cn = {'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10}
             if s.isdigit(): return int(s)
             if s in cn: return cn[s]

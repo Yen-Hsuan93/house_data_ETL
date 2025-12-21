@@ -64,17 +64,17 @@ class LatLngUpdate:
     def update_lat_lng(self):
         print("[LatLngUpdate] 開始更新經緯度...")
 
-        # 建立欄位
+
         for col in ["緯度", "經度"]:
             if col not in self.df.columns:
                 self.df[col] = np.nan
 
-        # 僅處理緯經度缺失者
+
         miss_mask = self.df["緯度"].isna() | self.df["經度"].isna()
         target_df = self.df.loc[miss_mask].copy()
         print(f" 共有 {len(target_df)} 筆需要補經緯度")
 
-        #Step 1：向量化比對補值
+
         if not self.main_data.empty:
             ref = (
                 self.main_data.dropna(subset=["緯度", "經度"])
@@ -89,7 +89,7 @@ class LatLngUpdate:
             after = self.df["緯度"].notna().sum()
             print(f"向量化比對補上 {after - before:,} 筆經緯度")
 
-        # Google Maps 轉經緯度
+
         still_missing = self.df[self.df["緯度"].isna() | self.df["經度"].isna()]
         print(f" 仍有 {len(still_missing)} 筆缺少經緯度")
 
@@ -97,7 +97,7 @@ class LatLngUpdate:
             print("[LatLngUpdate] 無需爬蟲，自動關閉瀏覽器。")
             return self.quit()
 
-        #  測試模式：只爬 50 筆
+        #  測試模式：爬 50 筆
         if self.test_mode:
             print(" 測試：僅爬前 50 筆，其他資料將刪除")
             still_missing = still_missing.head(50)
@@ -129,7 +129,7 @@ class LatLngUpdate:
             except Exception as e:
                 print(f" 搜尋失敗：{addr}，錯誤：{e}")
 
-        # 清理未爬資料
+
         if self.test_mode:
             print("刪除未爬取經緯度的其他資料")
             self.df = self.df.loc[still_missing.index].reset_index(drop=True)

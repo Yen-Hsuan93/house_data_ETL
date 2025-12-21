@@ -12,7 +12,7 @@ from typing import Optional
 
 
 class HouseDownload:
-    #setting Chrome and path
+
     def __init__(self,download_path: Optional[str] = None, save_path:Optional[str] = None):
         self.download_path = download_path or Path(r"C:\Users\hnchen\Downloads")
         self.save_path = save_path or Path(r"C:\sideProject\house_rawdata")
@@ -135,7 +135,7 @@ class HouseDownload:
         print(f"[found zip:{latest_zip}]")
         self.handle_zip(latest_zip,target_csv)
 
-    # ---------- 處理 ZIP ----------
+
     def handle_zip(self, zip_path, target_files):
         # year and season
 
@@ -165,7 +165,7 @@ class HouseDownload:
                     shutil.move(src, dest)
                     print(f"[file new_name：{dest}]")
 
-            # remove zip
+
             shutil.rmtree(temp_dir)
             zip_path.unlink()
             print("[remove ZIP and temp_file]")

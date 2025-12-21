@@ -1,14 +1,14 @@
 import os
 import pandas as pd
-import re # <-- 新增：需要導入 re 模組
+import re
 
 class FilterBasic:
-    """基本篩選與欄位統一處理"""
+
 
     def __init__(self, df: pd.DataFrame):
         self.df = df.copy()
 
-    # 移除特殊字元/亂碼的函式
+
 
     def remove_pua_chars_from_address(self, address_column: str = "土地位置建物門牌"):
         before_len = len(self.df)
@@ -21,7 +21,7 @@ class FilterBasic:
                 na=False
             )
 
-            # 刪除資料列
+
             self.df = self.df[~rows_to_drop_mask].copy()
 
             num_dropped = before_len - len(self.df)
@@ -35,7 +35,7 @@ class FilterBasic:
         return self
 
     def drop_duplicates_by_id(self):
-        """刪除重複編號"""
+
         if "編號" in self.df.columns:
             before = len(self.df)
             self.df = self.df.drop_duplicates(subset=["編號"], keep="first")
@@ -48,20 +48,20 @@ class FilterBasic:
         col_new = "車位移轉總面積平方公尺"
         col_old = "車位移轉總面積(平方公尺)"
 
-        # 1. 先確保兩個欄位若存在，都轉為數字 (才能運算)
+
         for col in [col_new, col_old, "建物移轉總面積平方公尺"]:
             if col in self.df.columns:
                 self.df[col] = pd.to_numeric(self.df[col], errors="coerce")
 
-        # 2. 處理合併邏輯
+
         if col_old in self.df.columns:
             if col_new in self.df.columns:
-                # 狀況 A: 兩個欄位都有 -> 合併資料 (用舊補新)
+ 
                 self.df[col_new] = self.df[col_new].combine_first(self.df[col_old])
                 self.df.drop(columns=[col_old], inplace=True)
                 print(f"   -> 合併 [{col_old}] 至 [{col_new}]")
             else:
-                # 狀況 B: 只有舊欄位 -> 直接改名
+
                 self.df.rename(columns={col_old: col_new}, inplace=True)
                 print(f"   -> 改名 [{col_old}] 為 [{col_new}]")
 

@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 class PriceFinalCleaning:
-    #每坪價格與最終欄位清理
+
     def __init__(self, df: pd.DataFrame):
         self.df = df
         

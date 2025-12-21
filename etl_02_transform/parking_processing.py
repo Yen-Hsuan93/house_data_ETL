@@ -10,27 +10,25 @@ class ParkingProcessing:
     def __init__(self, df: pd.DataFrame):
         self.df = df.copy()
 
-    def _to_numeric(self, col: str): #安全轉數值；若不存在則建空欄
+    def _to_numeric(self, col: str):
         if col not in self.df.columns:
             self.df[col] = np.nan
         self.df[col] = pd.to_numeric(self.df[col], errors="coerce")
         return self
 
-    # 處理車位欄位
+
     def process_parking(self):
         print("[ParkingProcessing] 開始處理車位欄位...")
 
-        # 數值欄位轉型
+
         for col in ["建物移轉總面積平方公尺", "車位移轉總面積平方公尺", "總價元", "車位總價元"]:
             self._to_numeric(col)
 
-        # 建物總坪數
         self.df["建物總坪數"] = (
             self.df["建物移轉總面積平方公尺"] * 0.3025
         ).round(2)
 
 
-        # 車位數從交易筆棟數中擷取
         def extract_parking_num(text):
             text = str(text) if pd.notna(text) else ""
             m = re.search(r"車位(\d+)", text)
@@ -43,38 +41,37 @@ class ParkingProcessing:
         else:
             self.df["車位數"] = pd.Series(0, index=self.df.index, dtype="Int64")
 
-        # 統一數值型態
         self.df["車位坪數"] = (
             self.df["車位移轉總面積平方公尺"] * 0.3025
         ).round(2)
         self.df["車位總價元"] = pd.to_numeric(self.df["車位總價元"], errors="coerce")
 
-        # 若缺欄位則補
+
         if "車位類別" not in self.df.columns:
             self.df["車位類別"] = np.nan
 
-        # 清理異常值
+
         self.df.loc[self.df["車位總價元"] == 0, "車位總價元"] = np.nan
         self.df.loc[self.df["車位坪數"] == 0, "車位坪數"] = np.nan
 
         print("[ParkingProcessing] 車位基本欄位處理完成。")
         return self
 
-    # 車位類別補值
+
     def impute_parking_type(self):
-        #依建物型態眾數補車位類別（排除無車位)
+
         if "建物型態" not in self.df.columns or "車位類別" not in self.df.columns:
             return self
 
         tmp = self.df.copy()
         tmp.loc[tmp["車位類別"] == "無車位", "車位類別"] = np.nan
 
-        # 用 transform，直接在原 df 對應補值，不產生 index 錯位
+
         mode_by_type = tmp.groupby("建物型態")["車位類別"].transform(
             lambda x: x.mode().iloc[0] if len(x.mode()) > 0 else np.nan
         )
 
-        # 補上缺值
+
         mask_need = self.df["車位類別"].isna()
         self.df.loc[mask_need, "車位類別"] = mode_by_type[mask_need].values
 
@@ -82,7 +79,8 @@ class ParkingProcessing:
         return self
 
 
-    def impute_parking_price_rf(self):#隨機森林補『車位總價元』
+    def impute_parking_price_rf(self):
+        #隨機森林補車位總價
         for col in ["總價元", "建物總坪數", "車位數", "車位總價元"]:
             self._to_numeric(col)
 
@@ -116,9 +114,9 @@ class ParkingProcessing:
         print("[ParkingProcessing] 車位總價補值完成。")
         return self
 
-     #車位每坪價 + 清理異常筆數
+
     def calculate_parking_price_per_ping(self):
-        """計算車位每坪價格（萬元/坪）並移除異常筆數"""
+
         for col in ["車位總價元", "車位坪數"]:
             self._to_numeric(col)
 
@@ -134,12 +132,11 @@ class ParkingProcessing:
         )
         print("[ParkingProcessing] 車位每坪價格計算完成。")
 
-        #  統一：車位類別=無車位 → 車位數=0
+
         mask_no_parking = self.df["車位類別"] == "無車位"
         self.df.loc[mask_no_parking, "車位數"] = 0
 
-        #移除「無車位但車位數≠0」異常筆數
-        #無車位但車位數 ≠ 0 → 刪除
+
         invalid1 = self.df[
             (self.df["車位類別"] == "無車位") & (self.df["車位數"] != 0)
         ].index
@@ -147,7 +144,7 @@ class ParkingProcessing:
             print(f"異常（無車位但車位數≠0）刪除 {len(invalid1)} 筆")
             self.df.drop(index=invalid1, inplace=True)
 
-        #車位數 = 0 但類別 ≠ 無車位 → 刪除
+
         invalid2 = self.df[
             (self.df["車位數"] == 0) & (self.df["車位類別"] != "無車位")
         ].index

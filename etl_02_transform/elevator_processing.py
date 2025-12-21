@@ -2,7 +2,6 @@ import os
 import pandas as pd
 
 class ElevatorProcessing:
-    """電梯"""
 
     def __init__(self, df: pd.DataFrame):
         self.df = df.copy()

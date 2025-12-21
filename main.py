@@ -52,7 +52,7 @@ def main():
     # ==========================================
     # 2. Extract: 下載最新資料
     # ==========================================
-    print("\n[Step 1] 開始下載資料...")
+    print("\n[Step 1] 開始下載資料")
     try:
         rawdata_download = HouseDownload()
         rawdata_download.visit()
@@ -86,17 +86,17 @@ def main():
     # ==========================================
     # 4. Transform: ETL 清整流程
     # ==========================================
-    print(f"\n[Step 3] 開始 ETL 清整...")
+    print(f"\n[Step 3] 開始 ETL 清整")
     
     os.makedirs(os.path.dirname(MERGED_CLEANED_PATH), exist_ok=True)
 
     # 這裡的 io.load() 現在會讀取一個乾淨的 merged_rawdata.csv (只包含本次新資料)
     io = IOHandler(input_path=merged_path, output_path=MERGED_CLEANED_PATH)
     df = io.load()
-    print(f"  -> 載入資料筆數: {len(df)}") # 這裡應該是 A/F/H 的實際筆數
+    print(f"載入資料筆數: {len(df)}") # 這裡應該是 A/F/H 的實際筆數
 
     # --- 各項清洗邏輯 ---
-    print("  -> 執行基礎過濾...")
+    print("執行基礎過濾")
     filter_basic = FilterBasic(df)
     filter_basic.remove_pua_chars_from_address()
     filter_basic.drop_duplicates_by_id()
@@ -110,14 +110,14 @@ def main():
     filter_basic.add_city_from_source()
     df = filter_basic.df
 
-    print("  -> 計算屋齡...")
+    print("計算屋齡")
     house_age = DateHouseAge(df)
     house_age.parse_dates()
     house_age.calculate_house_age()
     house_age.drop_abnormal_houseage()
     df = house_age.df
 
-    print("  -> 處理車位資訊...")
+    print("處理車位資訊")
     parking_process = ParkingProcessing(df)
     parking_process.process_parking()
     parking_process.impute_parking_type()
@@ -125,30 +125,30 @@ def main():
     parking_process.calculate_parking_price_per_ping()
     df = parking_process.df
 
-    print("  -> 填補主要建材...")
+    print("填補主要建材")
     material_process = MaterialProcessing(df)
     material_process.impute_main_material()
     df = material_process.df
 
-    print("  -> 處理樓層資訊...")
+    print("處理樓層資訊")
     floor_process = FloorProcessing(df)
     floor_process.total_floor()
     floor_process.count_transfer_floors()
     floor_process.extract_highest_floor()
     df = floor_process.df
 
-    print("  -> 計算單價與清除缺失值...")
+    print("計算單價與清除缺失值")
     price_clean = PriceFinalCleaning(df)
     price_clean.price_ping()
     price_clean.drop_missing_core_fields()
     df = price_clean.df
 
-    print("  -> 推論電梯...")
+    print("推論電梯")
     elevator_process = ElevatorProcessing(df)
     elevator_process.infer_elevator()
     df = elevator_process.df
 
-    print("  -> 補經緯度...")
+    print("補經緯度")
     lat_lng_master_path = MASTER_DATA_PATH if MASTER_EXISTS else None
     
     try:
@@ -160,7 +160,7 @@ def main():
     except Exception as e:
         print(f"經緯度更新發生例外: {e}")
 
-    print("  -> 計算捷運距離...")
+    print("  -> 計算捷運距離")
     if os.path.exists(MRT_LOCATION_PATH):
         mrt_distance = MrtDistance(df, mrt_path=MRT_LOCATION_PATH)
         mrt_distance.calculate_distance_to_mrt()
@@ -175,12 +175,12 @@ def main():
     # ==========================================
     # 5. Load: 寫入/更新 主資料庫
     # ==========================================
-    print("\n[Step 4] 寫入主資料庫...")
+    print("\n[Step 4] 寫入主資料庫")
 
     os.makedirs(os.path.dirname(MASTER_DATA_PATH), exist_ok=True)
 
     if MASTER_EXISTS:
-        print("  -> 模式: Append (合併至現有主檔)")
+        print("模式: Append (合併至現有主檔)")
         try:
             loader = MainDataLoader(
                 main_data_path=MASTER_DATA_PATH,
@@ -189,7 +189,7 @@ def main():
             )
             loader.load()
             
-            print("  -> 執行檔案置換...")
+            print("執行檔案置換")
             if os.path.exists(TEMP_OUTPUT_PATH):
                 shutil.copy(MASTER_DATA_PATH, MASTER_DATA_PATH + ".bak")
                 os.remove(MASTER_DATA_PATH)
@@ -200,7 +200,7 @@ def main():
         except Exception as e:
             print(f"Append 過程失敗: {e}")
     else:
-        print("  -> 模式: Initialization (建立新主檔)")
+        print("模式: Initialization (建立新主檔)")
         try:
             shutil.copy(MERGED_CLEANED_PATH, MASTER_DATA_PATH)
             print(f"已成功建立主資料庫: {MASTER_DATA_PATH}")
@@ -210,7 +210,7 @@ def main():
     # ==========================================
     # 6. Cleanup
     # ==========================================
-    print("\n[Step 5] 清理暫存檔案...")
+    print("\n[Step 5] 清理暫存檔案")
     for temp_file in [MERGED_RAW_PATH, MERGED_CLEANED_PATH]:
         if os.path.exists(temp_file):
             try:

@@ -2,13 +2,12 @@ import os
 import pandas as pd
 
 class DateHouseAge:
-    """處理:日期、屋齡、預售屋"""
 
     def __init__(self, df: pd.DataFrame):
         self.df = df.copy()
 
     def parse_dates(self):
-        """將民國年月日拆成年/月/日（西元）"""
+
         def parse_date(date_str):
             try:
                 s = str(date_str)
