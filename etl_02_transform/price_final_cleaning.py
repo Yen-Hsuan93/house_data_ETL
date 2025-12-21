@@ -32,7 +32,7 @@ def main():
     price_clean = price_clean.drop_missing_core_fields()
     df = price_clean.df
 
-    cols = ["總價元", "建物每坪價格"]  
+    cols = ["總價元", "每坪價格"]  
     print(price_clean.df[cols].head(5))
 
     for col in cols:
