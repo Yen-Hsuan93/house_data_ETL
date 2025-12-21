@@ -48,20 +48,23 @@ class DateHouseAge:
         self.df["屋齡"] = (self.df["交易日期"] - self.df["建築日期"]).dt.days / 365
         self.df["屋齡"] = self.df["屋齡"].round(1)
 
-        # -5 > 屋齡 清除
-        self.df = self.df.loc[self.df["屋齡"] >= -5].copy()
-
         # 預售屋：-5 < 屋齡 < 0
-        self.df["預售屋"] = ((self.df["屋齡"] < 0) & (self.df["屋齡"] > -5)).astype(int)
+        # 這裡需要調整邏輯，避免引用被註解掉的 -5 條件
+        is_presale = (self.df["屋齡"] < 0)
+        self.df["預售屋"] = is_presale.astype(int)
 
         # 負屋齡歸零
         self.df.loc[self.df["屋齡"] < 0, "屋齡"] = 0
 
         # 清理暫存欄
         self.df = self.df.drop(columns=["交易日期", "建築日期"])
-
+        return self
+    
+    def drop_abnormal_houseage(self):
         # 移除缺屋齡
-        self.df = self.df.dropna(subset=["屋齡"]).copy()
+        self.df['屋齡'] = self.df['屋齡'].fillna(-10)
+        # -5 > 屋齡 清除         
+        self.df = self.df.loc[self.df["屋齡"] <= -5].copy() 
 
         return self
 

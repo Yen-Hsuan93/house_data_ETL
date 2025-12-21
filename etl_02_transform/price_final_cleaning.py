@@ -6,7 +6,7 @@ class PriceFinalCleaning:
     #每坪價格與最終欄位清理
     def __init__(self, df: pd.DataFrame):
         self.df = df
-
+        
     def price_ping(self):
         num = self.df["總價元"] - self.df["車位總價元"]
         den = self.df["建物總坪數"] - self.df["車位坪數"]
@@ -18,6 +18,7 @@ class PriceFinalCleaning:
         cols = ["總樓層數", "每坪價格", "移轉樓層總數"]
         self.df = self.df.dropna(subset=[col for col in cols if col in self.df.columns])
         return self
+    
     
 
 def main():
@@ -31,7 +32,7 @@ def main():
     price_clean = price_clean.drop_missing_core_fields()
     df = price_clean.df
 
-    cols = ["總價元", "每坪價格"]  
+    cols = ["總價元", "建物每坪價格"]  
     print(price_clean.df[cols].head(5))
 
     for col in cols:

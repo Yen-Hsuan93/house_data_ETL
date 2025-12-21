@@ -20,7 +20,7 @@ class MrtDistance:
 
         # 確認欄位存在 
         if "緯度" not in self.df.columns or "經度" not in self.df.columns:
-            raise ValueError("❌ 缺少必要欄位：緯度 / 經度")
+            raise ValueError("缺少必要欄位：緯度 / 經度")
 
         # 轉換為數值型態
         self.df["緯度"] = pd.to_numeric(self.df["緯度"], errors="coerce")
@@ -59,7 +59,7 @@ class MrtDistance:
         
         # 1. 檢查是否已計算距離
         if '捷運距離(km)' not in self.df.columns:
-            print("⚠️ 尚未計算距離，正在自動補算...")
+            print("尚未計算距離，正在自動補算...")
             self.calculate_distance_to_mrt()
         
         # 檢查座標欄位
@@ -99,8 +99,9 @@ class MrtDistance:
         # 只要等級是 0，原本抓到的捷運站名就改成 "尚無捷運區"
         self.df.loc[self.df["捷運便利等級"] == 0, "最近捷運站"] = "尚無捷運區"
 
-        print("✅ 處理完成！已將無捷運區域標記更新。")
+        print("處理完成！已將無捷運區域標記更新。")
         return self
+
 
 def main():
     CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -109,7 +110,7 @@ def main():
     
     # 這裡加入簡單的檢查，避免路徑錯誤報錯
     if not os.path.exists(input_path):
-        print(f"❌ 找不到檔案: {input_path}")
+        print(f"找不到檔案: {input_path}")
         return
 
     df = pd.read_csv(input_path, encoding="utf-8-sig")

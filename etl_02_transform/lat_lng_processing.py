@@ -8,7 +8,7 @@ import numpy as np
 from pathlib import Path
 
 class LatLngUpdate:
-    def __init__(self, df: pd.DataFrame, main_data_path=None, test_mode=False):
+    def __init__(self, df: pd.DataFrame, main_data_path=None, test_mode=True):
         
         #test_mode=True 僅爬前 50 筆
         #test_mode=False 正常模式
@@ -113,11 +113,11 @@ class LatLngUpdate:
                     By.CSS_SELECTOR, "input.fontBodyMedium.searchboxinput.xiQnY"
                 )
                 txtInput.clear()
-                sleep(2)
+                sleep(0.7)
                 txtInput.send_keys(addr)
-                sleep(2)
+                sleep(0.7)
                 txtInput.send_keys(Keys.ENTER)
-                sleep(3)
+                sleep(1.5)
 
                 url = self.driver.current_url
                 lat, lng = self._extract_coordinates_from_url(url)
